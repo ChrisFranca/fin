@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Transações Recorrentes (Contas Fixas)</h2>
+    <a href="{% url 'recorrencia_create' %}" class="btn btn-primary">+ Nova Recorrência</a>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i> Estas transações são geradas automaticamente todo mês como <strong>Pendentes</strong> no seu histórico.
+</div>
+
+<div class="row">
+    {% for r in recorrencias %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">{{ r.descricao }}</h5>
+                    {% if r.ativa %}
+                        <span class="badge bg-success">Ativa</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inativa</span>
+                    {% endif %}
+                </div>
+                <h3 class="text-primary mb-3">R$ {{ r.valor }}</h3>
+                <p class="text-muted mb-1"><i class="bi bi-calendar-check me-2"></i>Vence todo dia {{ r.dia_vencimento }}</p>
+                <p class="text-muted mb-1"><i class="bi {{ r.categoria.icone }} me-2"></i>{{ r.categoria.nome }}</p>
+                <p class="text-muted"><i class="bi bi-bank me-2"></i>{{ r.conta.nome }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted">Nenhuma recorrência cadastrada ainda.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Metas de Economia</h2>
+    <a href="{% url 'meta_create' %}" class="btn btn-primary">+ Nova Meta</a>
+</div>
+
+<div class="row">
+    {% for meta in metas %}
+    <div class="col-md-6 mb-4">
+        <div class="card p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h4 class="mb-1">{{ meta.nome }}</h4>
+                    <span class="text-muted">Limite: {{ meta.data_limite|date:"d/m/Y" }}</span>
+                </div>
+                <div class="text-end">
+                    <h5 class="mb-0">R$ {{ meta.valor_objetivo|floatformat:2 }}</h5>
+                    <small class="text-success">Poupado: R$ {{ meta.valor_poupado }}</small>
+                </div>
+            </div>
+            
+            <div class="progress mb-2" style="height: 25px;">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ meta.progresso }}%">
+                    {{ meta.progresso }}%
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted">Início: 0,00</small>
+                <small class="fw-bold text-primary">Faltam R$ {{ meta.valor_restante|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted">Nenhuma meta definida ainda.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

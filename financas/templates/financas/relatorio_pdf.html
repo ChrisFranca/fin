@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 1cm; }
+        body { font-family: Helvetica, Arial, sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; margin-bottom: 20px; }
+        .title { font-size: 24px; color: #0d6efd; }
+        .summary { margin-bottom: 30px; width: 100%; }
+        .summary td { padding: 10px; border: 1px solid #eee; }
+        .label { font-weight: bold; color: #666; }
+        .value { font-size: 18px; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 8px; text-align: left; }
+        .table td { border-bottom: 1px solid #eee; padding: 8px; font-size: 12px; }
+        .text-success { color: #198754; }
+        .text-danger { color: #dc3545; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">Relatório Financeiro Doméstico</div>
+        <div>Período: {{ mes }}/{{ ano }} | Tipo: {{ tipo|upper }}</div>
+    </div>
+
+    <table class="summary">
+        <tr>
+            <td>
+                <div class="label">Total de Receitas</div>
+                <div class="value text-success">R$ {{ receitas|floatformat:2 }}</div>
+            </td>
+            <td>
+                <div class="label">Total de Despesas</div>
+                <div class="value text-danger">R$ {{ despesas|floatformat:2 }}</div>
+            </td>
+            <td>
+                <div class="label">Saldo do Período</div>
+                <div class="value">R$ {{ saldo|floatformat:2 }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <h3>Detalhamento das Transações</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Conta</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transacoes %}
+            <tr>
+                <td>{{ t.data|date:"d/m/Y" }}</td>
+                <td>{{ t.descricao }}</td>
+                <td>{{ t.categoria.nome }}</td>
+                <td>{{ t.conta.nome }}</td>
+                <td class="{% if t.categoria.tipo == 'R' %}text-success{% else %}text-danger{% endif %}">
+                    R$ {{ t.valor }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Gerado em {{ data_geracao|date:"d/m/Y H:i" }} - Sistema de Finanças Domésticas
+    </div>
+</body>
+</html>

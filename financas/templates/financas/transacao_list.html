@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="bi bi-list-ul me-2 text-primary"></i>Transações</h2>
+    <a href="{% url 'transacao_create' %}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg me-2"></i>Nova Transação</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase fw-bold">
+                    <tr>
+                        <th class="ps-4">Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Conta</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% for t in transacoes %}
+                    <tr>
+                        <td class="ps-4 text-muted">{{ t.data|date:"d M, Y" }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ t.descricao }}</div>
+                            {% if t.parcela_atual > 1 or t.total_parcelas > 1 %}
+                                <span class="badge rounded-pill bg-light text-dark border small fw-normal">
+                                    <i class="bi bi-stack me-1"></i> Parcela {{ t.parcela_atual }}/{{ t.total_parcelas }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                    <i class="bi {{ t.categoria.icone }} text-primary"></i>
+                                </div>
+                                <span>{{ t.categoria.nome }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted"><i class="bi bi-bank me-1"></i>{{ t.conta.nome }}</span>
+                        </td>
+                        <td class="fw-bold {% if t.categoria.tipo == 'R' %}text-success{% else %}text-danger{% endif %}">
+                            {% if t.categoria.tipo == 'R' %}+{% else %}-{% endif %} R$ {{ t.valor }}
+                        </td>
+                        <td>
+                            {% if t.status == 'C' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Confirmado
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill">
+                                    <i class="bi bi-clock-history me-1"></i> Pendente
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group shadow-sm">
+                                {% if t.status == 'P' %}
+                                <a href="{% url 'transacao_confirmar' t.pk %}" class="btn btn-white btn-sm border" title="Confirmar">
+                                    <i class="bi bi-check-lg text-success"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'transacao_excluir' t.pk %}" class="btn btn-white btn-sm border" onclick="return confirm('Excluir esta transação?')" title="Excluir">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" alt="Empty" style="width: 80px; opacity: 0.3;" class="mb-3">
+                            <p class="text-muted mb-0">Nenhuma transação encontrada no período.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-white { background: #fff; }
+    .btn-white:hover { background: #f8f9fa; }
+    [data-bs-theme="dark"] .btn-white { background: #1a1f29; border-color: #2d323c !important; }
+    [data-bs-theme="dark"] .btn-white:hover { background: #2d323c; }
+    .table > :not(caption) > * > * { border-bottom-width: 1px; padding: 1rem 0.5rem; }
+</style>
+{% endblock %}

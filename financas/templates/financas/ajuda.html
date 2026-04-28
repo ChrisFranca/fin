@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="row mb-5 text-center">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-5 fw-bold"><i class="bi bi-mortarboard text-primary me-2"></i>Central de Aprendizado</h1>
+            <p class="lead text-muted">Tudo o que você precisa saber para dominar suas finanças e alcançar seus objetivos.</p>
+            <hr class="w-25 mx-auto">
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. Gestão de Fluxo de Caixa -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary text-white fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Fluxo e Transferências</h5>
+                    <p class="card-text text-muted small">
+                        O coração do sistema. Aqui você registra o que entra, sai e move.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-arrow-left-right text-primary me-2"></i><strong>Transferências:</strong> Mova dinheiro entre suas contas (ex: Corrente para Poupança) sem alterar seus gráficos de gastos.</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i><strong>Confirmado vs Pendente:</strong> Transações pendentes ajudam na previsão, mas não afetam o saldo real do banco até a confirmação.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Orçamentos Inteligentes -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-danger text-white fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Previsão e Orçamentos</h5>
+                    <p class="card-text text-muted small">
+                        Não gaste mais do que planejou e saiba quanto vai sobrar.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-eye text-info me-2"></i><strong>Saldo Projetado:</strong> O dashboard calcula automaticamente seu saldo para o fim do mês, considerando o que ainda está pendente.</li>
+                        <li class="mb-2"><i class="bi bi-lightning text-warning me-2"></i><strong>Alertas de Orçamento:</strong> Receba notificações pop-up ao atingir 80% do limite de uma categoria.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Cartões e Crédito -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-dark text-white fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-credit-card-2-back"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Cartões de Crédito</h5>
+                    <p class="card-text text-muted small">
+                        Entenda como o sistema separa seu dinheiro real do crédito.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-calendar3 me-2"></i><strong>Fechamento:</strong> O dia que a fatura encerra e as novas compras vão para o próximo mês.</li>
+                        <li class="mb-2"><i class="bi bi-shield-check text-info me-2"></i><strong>Limite:</strong> O saldo da conta tipo "Cartão" mostra quanto você ainda tem de limite disponível.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Automação e Recorrência -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-success text-white fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Contas Fixas e Parcelas</h5>
+                    <p class="card-text text-muted small">
+                        Deixe o sistema trabalhar por você.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-magic me-2"></i><strong>Recorrências:</strong> Contas que se repetem todo mês (Netflix, Aluguel) são geradas automaticamente.</li>
+                        <li class="mb-2"><i class="bi bi-layers me-2"></i><strong>Parcelamento:</strong> Ao comprar parcelado, o sistema cria todas as parcelas futuras de uma só vez.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Importação Inteligente -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-warning text-dark fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Importação (OFX/CSV)</h5>
+                    <p class="card-text text-muted small">
+                        Sincronize seu banco sem digitar nada.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-cpu me-2"></i><strong>Aprendizado:</strong> O sistema memoriza suas descrições e sugere a categoria correta baseado no seu histórico.</li>
+                        <li class="mb-2"><i class="bi bi-filetype-csv me-2"></i><strong>Suporte:</strong> Compatível com extratos padrão de qualquer banco brasileiro.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Metas de Futuro -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-info text-white fs-4 mb-3 rounded-3 p-2" style="width: 45px; height: 45px;">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Metas de Economia</h5>
+                    <p class="card-text text-muted small">
+                        Transforme sobras em realizações.
+                    </p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="bi bi-percent me-2"></i><strong>Progresso:</strong> Veja visualmente quão perto você está da sua viagem, carro ou reserva de emergência.</li>
+                        <li class="mb-2"><i class="bi bi-hourglass-split me-2"></i><strong>Tempo:</strong> O sistema ajuda a entender quanto você precisa poupar por mês.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tips Section -->
+    <div class="mt-5 p-4 bg-dark text-white rounded-4 shadow">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="fw-bold mb-1">Dica de Especialista</h4>
+                <p class="mb-0 text-white-50 small">Tente conciliar seu extrato pelo menos uma vez por semana. Use o filtro de <strong>"Pendentes"</strong> na lista de transações para saber o que ainda não caiu no banco.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">Voltar ao Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .feature-icon {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .card {
+        transition: transform 0.2s ease, shadow 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+</style>
+{% endblock %}

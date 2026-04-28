@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard Financeiro</h1>
+    
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center gap-2">
+        <!-- Filtros Combinados -->
+        <form method="get" class="d-flex gap-2">
+            <select name="membro" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Família Toda</option>
+                {% for m in membros %}
+                <option value="{{ m.id }}" {% if membro_selecionado == m.id %}selected{% endif %}>{{ m.nome }}</option>
+                {% endfor %}
+            </select>
+            <select name="mes" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="1" {% if mes_selecionado == 1 %}selected{% endif %}>Janeiro</option>
+                <option value="2" {% if mes_selecionado == 2 %}selected{% endif %}>Fevereiro</option>
+                <option value="3" {% if mes_selecionado == 3 %}selected{% endif %}>Março</option>
+                <option value="4" {% if mes_selecionado == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if mes_selecionado == 5 %}selected{% endif %}>Maio</option>
+                <option value="6" {% if mes_selecionado == 6 %}selected{% endif %}>Junho</option>
+                <option value="7" {% if mes_selecionado == 7 %}selected{% endif %}>Julho</option>
+                <option value="8" {% if mes_selecionado == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if mes_selecionado == 9 %}selected{% endif %}>Setembro</option>
+                <option value="10" {% if mes_selecionado == 10 %}selected{% endif %}>Outubro</option>
+                <option value="11" {% if mes_selecionado == 11 %}selected{% endif %}>Novembro</option>
+                <option value="12" {% if mes_selecionado == 12 %}selected{% endif %}>Dezembro</option>
+            </select>
+            <select name="ano" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for a in anos %}
+                <option value="{{ a }}" {% if ano_selecionado == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <div class="vr mx-2"></div>
+
+        <a href="{% url 'gerar_relatorio_pdf' %}?mes={{ mes_selecionado }}&ano={{ ano_selecionado }}" target="_blank" class="btn btn-sm btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+        </a>
+        <a href="{% url 'transacao_create' %}" class="btn btn-sm btn-primary">+ Nova</a>
+    </div>
+</div>
+
+<!-- Resumo em Cards (Mantido com melhoria de Member Badge) -->
+{% if membro_selecionado %}
+<div class="alert alert-primary py-2 mb-4">
+    <i class="bi bi-person-circle me-2"></i> Visualizando apenas finanças de <strong>{% for m in membros %}{% if m.id == membro_selecionado %}{{ m.nome }}{% endif %}{% endfor %}</strong>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <!-- Card 1: Saldo Atual Total -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card p-3 border-start border-4 border-dark h-100 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Saldo Atual</small>
+                <i class="bi bi-wallet2 text-muted"></i>
+            </div>
+            <h3 class="mb-0 mt-2">R$ {{ saldo_total|floatformat:2 }}</h3>
+            <small class="text-muted mt-2" style="font-size: 0.8rem;">Todas as contas</small>
+        </div>
+    </div>
+    
+    <!-- Card 2: Saldo Projetado -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card p-3 border-start border-4 border-primary h-100 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-primary text-uppercase fw-bold" style="font-size: 0.75rem;">Projeção (Fim do Mês)</small>
+                <i class="bi bi-graph-up-arrow text-primary"></i>
+            </div>
+            <h3 class="mb-0 mt-2 {% if saldo_projetado < 0 %}text-danger{% else %}text-primary{% endif %}">R$ {{ saldo_projetado|floatformat:2 }}</h3>
+            <small class="text-muted mt-2" style="font-size: 0.8rem;">Considera lançamentos pendentes</small>
+        </div>
+    </div>
+
+    <!-- Card 3: Despesas do Mês -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card p-3 border-start border-4 border-danger h-100 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-danger text-uppercase fw-bold" style="font-size: 0.75rem;">Despesas (Mês)</small>
+                <i class="bi bi-arrow-down-circle text-danger"></i>
+            </div>
+            <h3 class="mb-0 mt-2 text-danger">R$ {{ despesas|floatformat:2 }}</h3>
+            <small class="text-muted mt-2" style="font-size: 0.8rem;">Receitas: R$ {{ receitas|floatformat:2 }}</small>
+        </div>
+    </div>
+
+    <!-- Card 4: Comparativo Anual -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card p-3 border-start border-4 border-info h-100 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-info text-uppercase fw-bold" style="font-size: 0.75rem;">Mês Atual vs Ano Passado</small>
+                <i class="bi bi-calendar-range text-info"></i>
+            </div>
+            <div class="mt-2">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Este ano</small>
+                    <small class="fw-bold">R$ {{ despesas|floatformat:2 }}</small>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Ano passado</small>
+                    <small class="text-muted">R$ {{ despesas_ano_passado|floatformat:2 }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5>Gastos por Categoria</h5>
+            <canvas id="pizzaChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5>Fluxo de Caixa Mensal</h5>
+            <canvas id="lineChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Metas de Economia -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h5 class="mb-3"><i class="bi bi-target me-2"></i>Metas de Economia</h5>
+            {% for meta in metas %}
+            <div class="mt-3">
+                <div class="d-flex justify-content-between">
+                    <span>{{ meta.nome }}</span>
+                    <small class="fw-bold">{{ meta.progresso }}%</small>
+                </div>
+                <div class="progress mt-1" style="height: 10px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ meta.progresso }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">R$ {{ meta.valor_poupado|floatformat:2 }} de R$ {{ meta.valor_objetivo|floatformat:2 }}</small>
+                    <small class="text-danger">Faltam R$ {{ meta.valor_restante|floatformat:2 }}</small>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted small">Nenhuma meta cadastrada.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Orçamentos (Planejado vs Realizado) -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h5 class="mb-3"><i class="bi bi-pie-chart-fill me-2"></i>Orçamentos (Mês)</h5>
+            {% for orc in status_orcamentos %}
+            <div class="mt-3">
+                <div class="d-flex justify-content-between">
+                    <span>{{ orc.categoria }}</span>
+                    <small class="fw-bold">{{ orc.porcentagem|floatformat:0 }}%</small>
+                </div>
+                <div class="progress mt-1" style="height: 10px;">
+                    <div class="progress-bar bg-{{ orc.cor }}" role="progressbar" style="width: {{ orc.porcentagem }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">Gasto: R$ {{ orc.gasto|floatformat:2 }}</small>
+                    <small class="text-muted">Limite: R$ {{ orc.limite|floatformat:2 }}</small>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4">
+                <p class="text-muted small">Sem orçamentos para este mês.</p>
+                <a href="#" class="btn btn-sm btn-outline-primary">Definir agora</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Últimas Transações -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Últimas Transações</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mt-2">
+                    <tbody>
+                        {% for t in ultimas_transacoes %}
+                        <tr>
+                            <td><small class="text-muted">{{ t.data|date:"d/m" }}</small></td>
+                            <td><small>{{ t.descricao|truncatechars:20 }}</small></td>
+                            <td class="text-end {% if t.categoria.tipo == 'R' %}text-receita{% else %}text-despesa{% endif %}">
+                                <strong>R$ {{ t.valor }}</strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-auto">
+                <a href="{% url 'transacao_list' %}" class="btn btn-sm btn-link text-decoration-none">Ver extrato completo</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctxPizza = document.getElementById('pizzaChart').getContext('2d');
+    new Chart(ctxPizza, {
+        type: 'doughnut',
+        data: {
+            labels: {{ labels_pizza|safe }},
+            datasets: [{
+                data: {{ data_pizza|safe }},
+                backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545', '#fd7e14', '#ffc107', '#198754'],
+                borderWidth: 0
+            }]
+        },
+        options: { 
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+            cutout: '70%'
+        }
+    });
+
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: {{ labels_linha|safe }},
+            datasets: [
+                { 
+                    label: 'Receitas', 
+                    data: {{ data_receita|safe }}, 
+                    borderColor: '#198754', 
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    fill: true,
+                    tension: 0.4 
+                },
+                { 
+                    label: 'Despesas', 
+                    data: {{ data_despesa|safe }}, 
+                    borderColor: '#dc3545', 
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4 
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}

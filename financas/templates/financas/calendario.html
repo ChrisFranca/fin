@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar3 me-2"></i> Calendário Financeiro</h2>
+    <a href="{% url 'transacao_create' %}" class="btn btn-primary">+ Nova Transação</a>
+</div>
+
+<div class="card shadow-sm p-4">
+    <div id='calendar'></div>
+</div>
+
+<!-- FullCalendar Core e Plugins -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'pt-br',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek'
+      },
+      buttonText: {
+        today: 'Hoje',
+        month: 'Mês',
+        week: 'Semana'
+      },
+      events: '/api/eventos/',
+      eventClick: function(info) {
+        // No futuro, pode abrir um modal com detalhes
+        alert('Transação: ' + info.event.title);
+      }
+    });
+    calendar.render();
+  });
+</script>
+
+<style>
+    .fc-event { cursor: pointer; border: none; padding: 2px 5px; }
+    .fc-toolbar-title { font-size: 1.25rem !important; }
+    [data-bs-theme="dark"] .fc { color: #fff; }
+    [data-bs-theme="dark"] .fc-theme-standard td, [data-bs-theme="dark"] .fc-theme-standard th { border-color: #333; }
+</style>
+{% endblock %}
