@@ -9,13 +9,16 @@ class MembroFamilia(models.Model):
 
 class Categoria(models.Model):
     TIPO_CHOICES = (('R', 'Receita'), ('D', 'Despesa'))
+    CLASSE_CHOICES = (('E', 'Essencial (50%)'), ('L', 'Estilo de Vida (30%)'), ('I', 'Investimento/Divida (20%)'), ('N', 'Nao se aplica'))
     nome = models.CharField(max_length=100)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES)
+    classe_abc = models.CharField(max_length=1, choices=CLASSE_CHOICES, default='N', help_text="Classificacao para a regra 50/30/20.")
     pai = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategorias', help_text="Selecione se esta for uma subcategoria (ex: Almoço é sub de Alimentação).")
     icone = models.CharField(max_length=50, default='bi-cash-stack', help_text="Ícone do Bootstrap Icons (ex: bi-cart, bi-house).")
     def __str__(self): return f"{self.nome} ({self.get_tipo_display()})"
 
 class Conta(models.Model):
+    # ... (rest of Conta remains the same)
     TIPO_CONTA = (('C', 'Corrente'), ('P', 'Poupança'), ('I', 'Investimento'), ('X', 'Dinheiro'), ('K', 'Cartão de Crédito'))
     nome = models.CharField(max_length=100)
     banco = models.CharField(max_length=50, blank=True)
@@ -49,6 +52,7 @@ class Transacao(models.Model):
     status = models.CharField(max_length=1, choices=TIPO_STATUS, default='C', help_text="Pendente: ainda não saiu do banco. Confirmado: já conferido no extrato.")
     tags = models.ManyToManyField(Tag, blank=True, help_text="Etiquetas para agrupar (ex: Viagem, Reforma).")
     observacao = models.TextField(blank=True, null=True)
+    comprovante = models.FileField(upload_to='comprovantes/%Y/%m/', blank=True, null=True, help_text="Anexe uma foto ou PDF do comprovante.")
     recorrente = models.BooleanField(default=False)
     parcela_atual = models.PositiveSmallIntegerField(default=1)
     total_parcelas = models.PositiveSmallIntegerField(default=1)
@@ -57,6 +61,12 @@ class Transacao(models.Model):
     def __str__(self):
         if self.total_parcelas > 1: return f"{self.descricao} ({self.parcela_atual}/{self.total_parcelas})"
         return self.descricao
+
+class PatrimonioHistorico(models.Model):
+    data = models.DateField(default=date.today)
+    valor_total = models.DecimalField(max_digits=15, decimal_places=2)
+    def __str__(self): return f"{self.data} - R$ {self.valor_total}"
+
 
 class Orcamento(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
@@ -85,6 +95,15 @@ class Recorrencia(models.Model):
     membro = models.ForeignKey(MembroFamilia, on_delete=models.SET_NULL, null=True, blank=True)
     ativa = models.BooleanField(default=True, help_text="Desmarque para parar de gerar esta transação automaticamente.")
     def __str__(self): return f"{self.descricao} (Dia {self.dia_vencimento})"
+
+class RelatorioPersonalizado(models.Model):
+    TIPO_RELATORIO = (('T', 'Tradicional (Tabelas)'), ('I', 'IA (Analítico Narrativo)'))
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField(help_text="O que este relatório deve analisar?")
+    tipo = models.CharField(max_length=1, choices=TIPO_RELATORIO, default='T')
+    query_base = models.CharField(max_length=255, blank=True, help_text="Termo de busca padrão (ex: Uber, Restaurante) se aplicável.")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    def __str__(self): return self.nome
 
 class RegraImportacao(models.Model):
     descricao_contem = models.CharField(max_length=100, help_text="Texto a buscar na descrição do banco (ex: UBER).")

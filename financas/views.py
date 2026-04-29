@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from django.db import models
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
-from .models import Transacao, Categoria, Conta, MetaEconomia, Orcamento, MembroFamilia, Recorrencia, RegraImportacao
-from .forms import TransacaoForm, TransferenciaForm
+from .models import Transacao, Categoria, Conta, MetaEconomia, Orcamento, MembroFamilia, Recorrencia, RegraImportacao, Tag, RelatorioPersonalizado
+from .forms import TransacaoForm, TransferenciaForm, CategoriaForm, ContaForm, MembroFamiliaForm, TagForm, RelatorioPersonalizadoForm
+import requests
 from datetime import datetime, date
 import pandas as pd
 import json
@@ -14,6 +15,9 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template
 from io import BytesIO
 from ofxparse import OfxParser
+import google.generativeai as genai
+import markdown
+from django.conf import settings
 
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -174,21 +178,49 @@ def gerar_relatorio_pdf(request):
 class TransacaoListView(ListView):
     model = Transacao; template_name = 'financas/transacao_list.html'; context_object_name = 'transacoes'; ordering = ['-data']
     def get_queryset(self):
-        qs = super().get_queryset(); q = self.request.GET.get('q')
+        qs = super().get_queryset(); q = self.request.GET.get('q'); conta_id = self.request.GET.get('conta')
         if q: qs = qs.filter(Q(descricao__icontains=q) | Q(observacao__icontains=q) | Q(categoria__nome__icontains=q) | Q(membro__nome__icontains=q) | Q(conta__nome__icontains=q))
+        if conta_id: qs = qs.filter(conta_id=conta_id)
         return qs
 
-class TransacaoCreateView(CreateView): 
+class TransacaoCreateView(CreateView):
+ 
     model = Transacao; form_class = TransacaoForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('transacao_list')
     def form_valid(self, form):
         messages.success(self.request, "Transação criada com sucesso!")
         return super().form_valid(form)
 
 class ContaListView(ListView): model = Conta; template_name = 'financas/conta_list.html'; context_object_name = 'contas'
-class ContaCreateView(CreateView): model = Conta; fields = ['nome', 'banco', 'tipo', 'saldo_inicial', 'cor', 'limite', 'dia_fechamento', 'dia_vencimento']; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('conta_list')
+class ContaCreateView(CreateView): model = Conta; form_class = ContaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('conta_list')
+class ContaUpdateView(UpdateView): model = Conta; form_class = ContaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('conta_list')
+class ContaDeleteView(DeleteView): model = Conta; template_name = 'financas/confirm_delete.html'; success_url = reverse_lazy('conta_list')
+
 class MetaListView(ListView): model = MetaEconomia; template_name = 'financas/meta_list.html'; context_object_name = 'metas'
 class MetaCreateView(CreateView): model = MetaEconomia; fields = ['nome', 'valor_objetivo', 'valor_poupado', 'data_limite']; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('meta_list')
-class RecorrenciaListView(ListView): model = Recorrencia; template_name = 'financas/recorrencia_list.html'; context_object_name = 'recorrencias'
+class MetaUpdateView(UpdateView): model = MetaEconomia; fields = ['nome', 'valor_objetivo', 'valor_poupado', 'data_limite']; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('meta_list')
+class MetaDeleteView(DeleteView): model = MetaEconomia; template_name = 'financas/confirm_delete.html'; success_url = reverse_lazy('meta_list')
+
+class CategoriaListView(ListView): model = Categoria; template_name = 'financas/categoria_list.html'; context_object_name = 'categorias'
+class CategoriaCreateView(CreateView): model = Categoria; form_class = CategoriaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('categoria_list')
+class CategoriaUpdateView(UpdateView): model = Categoria; form_class = CategoriaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('categoria_list')
+class CategoriaDeleteView(DeleteView): model = Categoria; template_name = 'financas/confirm_delete.html'; success_url = reverse_lazy('categoria_list')
+
+class MembroListView(ListView): model = MembroFamilia; template_name = 'financas/membro_list.html'; context_object_name = 'membros'
+class MembroCreateView(CreateView): model = MembroFamilia; form_class = MembroFamiliaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('membro_list')
+class MembroUpdateView(UpdateView): model = MembroFamilia; form_class = MembroFamiliaForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('membro_list')
+class MembroDeleteView(DeleteView): model = MembroFamilia; template_name = 'financas/confirm_delete.html'; success_url = reverse_lazy('membro_list')
+
+class TagListView(ListView): model = Tag; template_name = 'financas/tag_list.html'; context_object_name = 'tags'
+class TagCreateView(CreateView): model = Tag; form_class = TagForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('tag_list')
+class TagUpdateView(UpdateView): model = Tag; form_class = TagForm; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('tag_list')
+class TagDeleteView(DeleteView): model = Tag; template_name = 'financas/confirm_delete.html'; success_url = reverse_lazy('tag_list')
+
+class OrcamentoListView(ListView):
+ model = Orcamento; template_name = 'financas/orcamento_list.html'; context_object_name = 'orcamentos'
+class OrcamentoCreateView(CreateView): model = Orcamento; fields = ['categoria', 'valor_limite', 'mes', 'ano']; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('dashboard')
+
+class RecorrenciaListView(ListView):
+ model = Recorrencia; template_name = 'financas/recorrencia_list.html'; context_object_name = 'recorrencias'
 class RecorrenciaCreateView(CreateView): model = Recorrencia; fields = ['descricao', 'valor', 'dia_vencimento', 'categoria', 'conta', 'membro', 'ativa']; template_name = 'financas/form_generico.html'; success_url = reverse_lazy('recorrencia_list')
 
 def sugestao_categoria(descricao):
@@ -240,3 +272,66 @@ def transferencia_create(request):
     else:
         form = TransferenciaForm()
     return render(request, 'financas/form_generico.html', {'form': form, 'titulo': 'Nova Transferência'})
+
+class RelatorioListView(ListView):
+    model = RelatorioPersonalizado
+    template_name = 'financas/relatorio_list.html'
+    context_object_name = 'relatorios'
+
+class RelatorioCreateView(CreateView):
+    model = RelatorioPersonalizado
+    form_class = RelatorioPersonalizadoForm
+    template_name = 'financas/form_generico.html'
+    success_url = reverse_lazy('relatorio_list')
+
+def gerar_relatorio_ia(request, pk):
+    relatorio = get_object_or_404(RelatorioPersonalizado, pk=pk)
+    
+    # Busca transações para contexto (últimos 3 meses por padrão)
+    tres_meses_atras = date.today() - relativedelta(months=3)
+    transacoes = Transacao.objects.filter(data__gte=tres_meses_atras).order_by('data')
+    
+    if relatorio.query_base:
+        transacoes = transacoes.filter(Q(descricao__icontains=relatorio.query_base) | Q(categoria__nome__icontains=relatorio.query_base))
+
+    # Formata contexto para a IA
+    contexto_transacoes = "Transações recentes:\n"
+    for t in transacoes:
+        contexto_transacoes += f"- {t.data}: {t.descricao} ({t.categoria.nome}) - R$ {t.valor}\n"
+
+    # Configura Gemini
+    api_key = getattr(settings, 'GEMINI_API_KEY', None)
+    if not api_key or api_key == 'sua_chave_aqui':
+        return render(request, 'financas/relatorio_ia_resultado.html', {
+            'relatorio': relatorio,
+            'resultado': "Erro: Chave de API do Gemini não configurada no arquivo .env."
+        })
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-pro')
+        
+        prompt = f"""
+        Você é um consultor financeiro pessoal experiente. 
+        Analise os dados abaixo e gere um relatório baseado no seguinte objetivo: {relatorio.descricao}
+        
+        Dados de Transações:
+        {contexto_transacoes}
+        
+        Instruções Adicionais:
+        - Use um tom profissional mas acolhedor.
+        - Se o tipo for 'I' (IA Analítico), foque em insights profundos e sugestões práticas.
+        - Formate a resposta em Markdown (use títulos, listas e negrito).
+        - Responda em Português do Brasil.
+        """
+        
+        response = model.generate_content(prompt)
+        resultado_html = markdown.markdown(response.text)
+        
+    except Exception as e:
+        resultado_html = f"<p class='text-danger'>Erro ao chamar a API do Gemini: {str(e)}</p>"
+
+    return render(request, 'financas/relatorio_ia_resultado.html', {
+        'relatorio': relatorio,
+        'resultado': resultado_html
+    })

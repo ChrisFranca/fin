@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Relatórios Inteligentes (IA)</h1>
+    <a href="{% url 'relatorio_create' %}" class="btn btn-primary">+ Novo Relatório</a>
+</div>
+
+<div class="row">
+    {% for r in relatorios %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title fw-bold mb-0 text-primary">{{ r.nome }}</h5>
+                    <span class="badge {% if r.tipo == 'I' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {{ r.get_tipo_display }}
+                    </span>
+                </div>
+                <p class="card-text text-muted small">{{ r.descricao }}</p>
+                {% if r.query_base %}
+                <p class="mb-3"><span class="badge bg-light text-dark border"><i class="bi bi-search me-1"></i> {{ r.query_base }}</span></p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3">
+                <a href="{% url 'gerar_relatorio_ia' r.pk %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-stars"></i> Gerar Análise IA
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-robot fs-1 text-muted d-block mb-3"></i>
+        <p class="text-muted">Nenhum relatório personalizado configurado.</p>
+        <a href="{% url 'relatorio_create' %}" class="btn btn-primary">Criar meu primeiro relatório</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

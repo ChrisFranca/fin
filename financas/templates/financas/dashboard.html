@@ -169,7 +169,7 @@
             {% empty %}
             <div class="text-center py-4">
                 <p class="text-muted small">Sem orçamentos para este mês.</p>
-                <a href="#" class="btn btn-sm btn-outline-primary">Definir agora</a>
+                <a href="{% url 'orcamento_create' %}" class="btn btn-sm btn-outline-primary">Definir agora</a>
             </div>
             {% endfor %}
         </div>

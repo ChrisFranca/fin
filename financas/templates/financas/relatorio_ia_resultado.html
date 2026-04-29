@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-stars text-primary me-2"></i>Análise da IA</h1>
+    <a href="{% url 'relatorio_list' %}" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0">{{ relatorio.nome }}</h5>
+                <small class="opacity-75">{{ relatorio.descricao }}</small>
+            </div>
+            <div class="card-body p-4 bg-white" id="ia-content">
+                {{ resultado|safe }}
+            </div>
+            <div class="card-footer bg-light text-center py-3">
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Esta análise foi gerada automaticamente por IA e pode conter imprecisões.</small>
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2 justify-content-center mb-5">
+            <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Imprimir</button>
+            <a href="{% url 'gerar_relatorio_ia' relatorio.pk %}" class="btn btn-primary"><i class="bi bi-arrow-clockwise me-2"></i>Regerar Análise</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    #ia-content h1, #ia-content h2, #ia-content h3 { color: #0d6efd; margin-top: 1.5rem; }
+    #ia-content p { line-height: 1.6; color: #444; }
+    #ia-content ul, #ia-content ol { margin-bottom: 1.5rem; }
+    #ia-content li { margin-bottom: 0.5rem; }
+    [data-bs-theme="dark"] #ia-content { background-color: #1a1f29 !important; }
+    [data-bs-theme="dark"] #ia-content p, [data-bs-theme="dark"] #ia-content li { color: #dee2e6; }
+</style>
+{% endblock %}

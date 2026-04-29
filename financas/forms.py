@@ -1,5 +1,5 @@
 from django import forms
-from .models import Transacao, Conta
+from .models import Transacao, Conta, Categoria, MembroFamilia, Tag, Orcamento, RelatorioPersonalizado
 import uuid
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -9,7 +9,12 @@ class TransacaoForm(forms.ModelForm):
 
     class Meta:
         model = Transacao
-        fields = ['descricao', 'valor', 'data', 'categoria', 'conta', 'membro', 'status', 'tags', 'observacao']
+        fields = ['descricao', 'valor', 'data', 'categoria', 'conta', 'membro', 'status', 'tags', 'observacao', 'comprovante']
+        widgets = {
+            'data': forms.DateInput(attrs={'type': 'date'}),
+            'tags': forms.CheckboxSelectMultiple(),
+            'observacao': forms.Textarea(attrs={'rows': 3}),
+        }
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -20,9 +25,8 @@ class TransacaoForm(forms.ModelForm):
             instance.id_parcelamento = id_grupo
             instance.total_parcelas = total
             instance.parcela_atual = 1
-            instance.save() # Salva a primeira parcela
+            instance.save() 
             
-            # Criar as demais parcelas
             for i in range(2, total + 1):
                 Transacao.objects.create(
                     descricao=instance.descricao,
@@ -31,7 +35,7 @@ class TransacaoForm(forms.ModelForm):
                     categoria=instance.categoria,
                     conta=instance.conta,
                     membro=instance.membro,
-                    status='P', # Parcelas futuras começam como pendentes
+                    status='P',
                     id_parcelamento=id_grupo,
                     total_parcelas=total,
                     parcela_atual=i
@@ -56,3 +60,53 @@ class TransferenciaForm(forms.Form):
         if origem and destino and origem == destino:
             raise forms.ValidationError("A conta de origem não pode ser a mesma que a de destino.")
         return cleaned_data
+
+class CategoriaForm(forms.ModelForm):
+    ICONES_CHOICES = [
+        ('bi-cash-stack', 'Dinheiro'),
+        ('bi-cart', 'Compras'),
+        ('bi-house', 'Moradia'),
+        ('bi-car-front', 'Transporte'),
+        ('bi-heart-pulse', 'Saúde'),
+        ('bi-mortarboard', 'Educação'),
+        ('bi-controller', 'Lazer'),
+        ('bi-lightning', 'Energia/Utilidades'),
+        ('bi-phone', 'Comunicação'),
+        ('bi-briefcase', 'Trabalho'),
+        ('bi-gift', 'Presentes'),
+        ('bi-cup-hot', 'Alimentação'),
+        ('bi-airplane', 'Viagens'),
+        ('bi-piggy-bank', 'Investimentos'),
+    ]
+    
+    icone = forms.ChoiceField(choices=ICONES_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
+
+    class Meta:
+        model = Categoria
+        fields = ['nome', 'tipo', 'classe_abc', 'pai', 'icone']
+
+class ContaForm(forms.ModelForm):
+    class Meta:
+        model = Conta
+        fields = ['nome', 'banco', 'tipo', 'saldo_inicial', 'cor', 'limite', 'dia_fechamento', 'dia_vencimento']
+        widgets = {
+            'cor': forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
+        }
+
+class MembroFamiliaForm(forms.ModelForm):
+    class Meta:
+        model = MembroFamilia
+        fields = ['nome', 'cor']
+        widgets = {
+            'cor': forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
+        }
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ['nome']
+
+class RelatorioPersonalizadoForm(forms.ModelForm):
+    class Meta:
+        model = RelatorioPersonalizado
+        fields = ['nome', 'descricao', 'tipo', 'query_base']

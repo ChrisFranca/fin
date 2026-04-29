@@ -27,9 +27,12 @@
                 </div>
             </div>
             
-            <div class="d-flex justify-content-between mt-2">
-                <small class="text-muted">Início: 0,00</small>
+            <div class="d-flex justify-content-between mt-3 pt-3 border-top">
                 <small class="fw-bold text-primary">Faltam R$ {{ meta.valor_restante|floatformat:2 }}</small>
+                <div class="btn-group">
+                    <a href="{% url 'meta_update' meta.pk %}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'meta_delete' meta.pk %}" class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></a>
+                </div>
             </div>
         </div>
     </div>

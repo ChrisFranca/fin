@@ -133,8 +133,16 @@
                     <a href="{% url 'calendario' %}" class="{% if request.resolver_match.url_name == 'calendario' %}active{% endif %}"><i class="bi bi-calendar-week"></i> Calendário</a>
                     <a href="{% url 'conta_list' %}" class="{% if 'conta' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-bank2"></i> Minhas Contas</a>
                     <a href="{% url 'meta_list' %}" class="{% if 'meta' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-trophy"></i> Metas</a>
+                    <a href="{% url 'orcamento_list' %}" class="{% if 'orcamento' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-pie-chart-fill"></i> Orçamentos</a>
+                    <a href="{% url 'relatorio_list' %}" class="{% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-stars"></i> Relatórios IA</a>
                     <a href="{% url 'recorrencia_list' %}" class="{% if 'recorrencia' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-repeat"></i> Recorrências</a>
                     <a href="{% url 'importar_extrato' %}" class="{% if request.resolver_match.url_name == 'importar_extrato' %}active{% endif %}"><i class="bi bi-cloud-upload"></i> Importação</a>
+                    
+                    <div class="sidebar-heading px-4 mt-3 mb-1 text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Configurações</div>
+                    <a href="{% url 'membro_list' %}" class="{% if 'membro' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-people"></i> Membros</a>
+                    <a href="{% url 'categoria_list' %}" class="{% if 'categoria' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-tags"></i> Categorias</a>
+                    <a href="{% url 'tag_list' %}" class="{% if 'tag' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-bookmark-star"></i> Tags</a>
+                    
                     <a href="{% url 'ajuda' %}" class="{% if request.resolver_match.url_name == 'ajuda' %}active{% endif %}"><i class="bi bi-patch-question"></i> Ajuda</a>
                 </div>
 

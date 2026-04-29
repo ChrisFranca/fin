@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Meus Orçamentos</h2>
+    <a href="{% url 'orcamento_create' %}" class="btn btn-primary">+ Novo Orçamento</a>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i> Os orçamentos ajudam você a controlar seus gastos por categoria a cada mês.
+</div>
+
+<div class="row">
+    {% for o in orcamentos %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">{{ o.categoria.nome }}</h5>
+                    <span class="badge bg-info text-dark">{{ o.mes }}/{{ o.ano }}</span>
+                </div>
+                <h3 class="text-primary mb-3">Limite: R$ {{ o.valor_limite }}</h3>
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Gasto Atual</span>
+                        <span class="fw-bold">R$ {{ o.gasto_atual|floatformat:2 }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        {% with gasto=o.gasto_atual %}
+                        {% widthratio gasto o.valor_limite 100 as percent %}
+                        <div class="progress-bar {% if percent|add:0 > 100 %}bg-danger{% elif percent|add:0 > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" style="width: {{ percent }}%"></div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="bg-light d-inline-block rounded-circle p-4 mb-3">
+            <i class="bi bi-pie-chart fs-1 text-muted"></i>
+        </div>
+        <h5 class="text-muted">Nenhum orçamento definido ainda.</h5>
+        <a href="{% url 'orcamento_create' %}" class="btn btn-outline-primary mt-3">Definir primeiro orçamento</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

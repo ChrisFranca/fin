@@ -48,8 +48,11 @@
             </div>
             
             <div class="card-footer bg-light border-0 px-4 py-3 d-flex justify-content-between align-items-center">
-                <small class="text-muted italic">Início: R$ {{ conta.saldo_inicial }}</small>
-                <a href="#" class="btn btn-sm btn-link text-decoration-none p-0 fw-bold">Ver Extrato <i class="bi bi-chevron-right ms-1"></i></a>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'conta_update' conta.id %}" class="btn btn-sm btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'conta_delete' conta.id %}" class="btn btn-sm btn-outline-danger border-0" title="Excluir"><i class="bi bi-trash"></i></a>
+                </div>
+                <a href="{% url 'transacao_list' %}?conta={{ conta.id }}" class="btn btn-sm btn-link text-decoration-none p-0 fw-bold">Ver Extrato <i class="bi bi-chevron-right ms-1"></i></a>
             </div>
         </div>
     </div>
